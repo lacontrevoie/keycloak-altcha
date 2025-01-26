@@ -1,4 +1,4 @@
-package de.itrupp.p8.keycloak.authenticator;
+package fr.lacontrevoie.altcha.keycloak.authenticator;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -33,13 +33,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class RegistrationhCaptcha implements FormAction, FormActionFactory {
-    public static final String H_CAPTCHA_RESPONSE = "h-captcha-response";
-    public static final String HCAPTCHA_REFERENCE_CATEGORY = "hcaptcha";
+public class RegistrationAltcha implements FormAction, FormActionFactory {
+    public static final String ALTCHA_RESPONSE = "altcha-response";
+    public static final String ALTCHA_REFERENCE_CATEGORY = "altcha";
     public static final String SITE_KEY = "site.key";
     public static final String SITE_SECRET = "secret";
 
-    public static final String PROVIDER_ID = "registration-hcaptcha-action";
+    public static final String PROVIDER_ID = "registration-altcha-action";
 
     @Override
     public void close() {
@@ -68,12 +68,12 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
 
     @Override
     public String getDisplayType() {
-        return "hCaptcha";
+        return "ALTCHA";
     }
 
     @Override
     public String getReferenceCategory() {
-        return HCAPTCHA_REFERENCE_CATEGORY;
+        return ALTCHA_REFERENCE_CATEGORY;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
 
     @Override
     public String getHelpText() {
-        return "Adds hCaptcha button.  hCaptchas verify that the entity that is registering is a human.  This can only be used on the internet and must be configured after you add it.";
+        return "Adds ALTCHA button.  ALTCHA verify that the entity that is registering is a human. It must be configured after you add it.";
     }
 
 
@@ -116,10 +116,10 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
 
         String siteKey = captchaConfig.getConfig().get(SITE_KEY);
         String compact = captchaConfig.getConfig().get("compact");
-        form.setAttribute("hcaptchaRequired", true);
+        /*form.setAttribute("hcaptchaRequired", true);
         form.setAttribute("hcaptchaCompact", compact);
         form.setAttribute("hcaptchaSiteKey", siteKey);
-        form.addScript("https://js.hcaptcha.com/1/api.js?hl=" + userLanguageTag);
+        form.addScript("https://js.hcaptcha.com/1/api.js?hl=" + userLanguageTag);*/
 
     }
 
@@ -131,7 +131,7 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
         boolean success = false;
         context.getEvent().detail(Details.REGISTER_METHOD, "form");
 
-        String captcha = formData.getFirst(H_CAPTCHA_RESPONSE);
+        String captcha = formData.getFirst(ALTCHA_RESPONSE);
         if (!Validation.isBlank(captcha)) {
             AuthenticatorConfigModel captchaConfig = context.getAuthenticatorConfig();
             String secret = captchaConfig.getConfig().get(SITE_SECRET);
@@ -142,7 +142,7 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
             context.success();
         } else {
             errors.add(new FormMessage(null, Messages.RECAPTCHA_FAILED));
-            formData.remove(H_CAPTCHA_RESPONSE);
+            formData.remove(ALTCHA_RESPONSE);
             context.error(Errors.INVALID_REGISTRATION);
             context.validationError(formData, errors);
             context.excludeOtherErrors();
@@ -155,7 +155,7 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
 
     protected boolean validateRecaptcha(ValidationContext context, boolean success, String captcha, String secret) {
         CloseableHttpClient httpClient = context.getSession().getProvider(HttpClientProvider.class).getHttpClient();
-        HttpPost post = new HttpPost("https://hcaptcha.com/siteverify");
+        /*HttpPost post = new HttpPost("https://hcaptcha.com/siteverify");
         List<NameValuePair> formparams = new LinkedList<>();
         formparams.add(new BasicNameValuePair("secret", secret));
         formparams.add(new BasicNameValuePair("response", captcha));
@@ -177,7 +177,8 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
         } catch (Exception e) {
             ServicesLogger.LOGGER.recaptchaFailed(e);
         }
-        return success;
+        return success;*/
+        return Boolean.TRUE;
     }
 
     @Override
@@ -206,19 +207,19 @@ public class RegistrationhCaptcha implements FormAction, FormActionFactory {
         ProviderConfigProperty property;
         property = new ProviderConfigProperty();
         property.setName(SITE_KEY);
-        property.setLabel("hCaptcha Site Key");
+        property.setLabel("ALTCHA Site Key");
         property.setType(ProviderConfigProperty.STRING_TYPE);
-        property.setHelpText("hCaptcha Site Key");
+        property.setHelpText("ALTCHA Site Key");
         CONFIG_PROPERTIES.add(property);
         property = new ProviderConfigProperty();
         property.setName(SITE_SECRET);
-        property.setLabel("hCaptcha Secret");
+        property.setLabel("ALTCHA Secret");
         property.setType(ProviderConfigProperty.STRING_TYPE);
-        property.setHelpText("hCaptcha Secret");
+        property.setHelpText("ALTCHA Secret");
         CONFIG_PROPERTIES.add(property);
         property = new ProviderConfigProperty();
         property.setName("compact");
-        property.setLabel("hCaptcha Compact");
+        property.setLabel("ALTCHA Compact");
         property.setType(ProviderConfigProperty.BOOLEAN_TYPE);
         property.setHelpText("Compact format");
         CONFIG_PROPERTIES.add(property);
