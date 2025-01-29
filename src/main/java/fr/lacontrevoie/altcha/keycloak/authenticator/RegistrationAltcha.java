@@ -27,13 +27,12 @@ import org.altcha.altcha.Altcha;
 import org.altcha.altcha.Altcha.ChallengeOptions;
 import org.altcha.altcha.Altcha.Challenge;
 import org.altcha.altcha.Altcha.Payload;
-import org.altcha.altcha.Altcha.ServerSignatureVerification;
 
 public class RegistrationAltcha implements FormAction, FormActionFactory {
     public static final String ALTCHA_RESPONSE = "altcha";
     public static final String ALTCHA_REFERENCE_CATEGORY = "altcha";
     // 1 hour expiration for captcha
-    public static final long ALTCHA_DEFAULT_EXPIRES = 60;
+    public static final long ALTCHA_DEFAULT_EXPIRES = 3600;
 
     public static final String PROVIDER_ID = "registration-altcha-action";
 
@@ -141,7 +140,6 @@ public class RegistrationAltcha implements FormAction, FormActionFactory {
 
         form.setAttribute("altchaRequired", true);
         form.setAttribute("altchaFloating", floating);
-
     }
 
     @Override
@@ -149,40 +147,45 @@ public class RegistrationAltcha implements FormAction, FormActionFactory {
 
         MultivaluedMap<String, String> formData = context.getHttpRequest().getDecodedFormParameters();
         List<FormMessage> errors = new ArrayList<>();
-        boolean success = false;
         context.getEvent().detail(Details.REGISTER_METHOD, "form");
 
         String captcha_resp = formData.getFirst(ALTCHA_RESPONSE);
 
-        if (!Validation.isBlank(captcha_resp)) {
-            // retrieve HMAC key
-            AuthenticatorConfigModel captchaConfig = context.getAuthenticatorConfig();
-            String hmacKey = captchaConfig.getConfig().get("secret");
-
-            try {
-                // check if captcha solution is valid
-                success = Altcha.verifySolution(captcha_resp, hmacKey, true);
-                if (success) {
-                    ServerSignatureVerification r = Altcha.verifyServerSignature(captcha_resp, hmacKey);
-                    success = r.verified;
-                }
-            } catch (Exception e) {
-                ServicesLogger.LOGGER.recaptchaFailed(e);
-            }
-
-        }
-        if (success) {
-            context.success();
-        } else {
-            errors.add(new FormMessage(null, Messages.RECAPTCHA_FAILED));
+        // early return is form data does not contain captcha response
+        if (Validation.isBlank(captcha_resp)) {
+            errors.add(new FormMessage("altcha.captchaFormEmpty"));
             formData.remove(ALTCHA_RESPONSE);
             context.error(Errors.INVALID_REGISTRATION);
             context.validationError(formData, errors);
             context.excludeOtherErrors();
             return;
-
         }
 
+        // retrieve HMAC key
+        AuthenticatorConfigModel captchaConfig = context.getAuthenticatorConfig();
+        String hmacKey = captchaConfig.getConfig().get("secret");
+
+        try {
+            // check if captcha solution is valid
+            if (!Altcha.verifySolution(captcha_resp, hmacKey, true)) {
+                errors.add(new FormMessage("altcha.captchaValidationFailed"));
+            }
+
+        } catch (Exception e) {
+            errors.add(new FormMessage("altcha.captchaValidationException"));
+            ServicesLogger.LOGGER.recaptchaFailed(e);
+        }
+
+        // early return if captcha verification failed. can happen e.g. in case of timeout
+        if (!errors.isEmpty()) {
+            formData.remove(ALTCHA_RESPONSE);
+            context.error(Errors.INVALID_REGISTRATION);
+            context.validationError(formData, errors);
+            context.excludeOtherErrors();
+            return;
+        }
+
+        context.success();
     }
 
     @Override
