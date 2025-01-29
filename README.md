@@ -8,7 +8,7 @@ ALTCHA is a proof-of-work captcha generator which generates a complex math chall
 
 ## Installation
 
-Download the newest release JAR (or compile it yourself - see below) and drop it into `your_keycloak_installation/providers`.
+Compile the JAR and drop it into `your_keycloak_installation/providers`.
 
 ### Registration flow
 
