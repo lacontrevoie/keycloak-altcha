@@ -1,0 +1,22 @@
+name: Build and push
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: runner_image
+    steps:
+      - name: Checkout
+        run: /scripts/clone.sh ${{ gitea.server_url }} ${{ gitea.repository }}
+
+      - name: Use Go release action  
+        id: use-go-action
+        uses: https://gitea.com/actions/release-action@main
+        with:
+          files: |-
+            target/*.jar
+          api_key: '${{secrets.RELEASE_TOKEN}}'
+
