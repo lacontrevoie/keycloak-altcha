@@ -2,49 +2,66 @@
 
 Fork of [keycloak-hcaptcha](https://github.com/p08dev/keycloak-hcaptcha).
 
-To safeguard registration against bots, Keycloak has integration with Google reCAPTCHA. This provides similar functionality, but with a more privacy friendly provider named hCaptcha. The code is based on the vanilla implementation of reCAPTCHA in Keycloak.
+To safeguard registration against bots, Keycloak has integration with Google reCAPTCHA. This extension provides similar functionality, but with a more privacy friendly provider named [ALTCHA](https://altcha.org/). The code is based [the hCaptcha extension](https://github.com/p08dev/keycloak-hcaptcha), itself based on the vanilla implementation of reCAPTCHA in Keycloak.
+
+ALTCHA is a proof-of-work captcha generator which generates a complex math challenge taking a few seconds for a computer to solve, thus hindering exploitation of the form by spambots. The CAPTCHA doesn’t need any user interaction and is trefore accessible for disabled people.
 
 ## Installation
 
-Download the newest release JAR (or compile it yourself - see below) and drop it into `your_keycloak_installation/providers`
+Download the newest release JAR (or compile it yourself - see below) and drop it into `your_keycloak_installation/providers`.
 
-There are a few steps you need to perform in the Keycloak Admin Console. Click the Authentication left menu item and go to the Flows tab. Select the Registration flow from the drop down list on this page.
+### Registration flow
 
-Registration Flow
+There are a few steps you need to perform in the Keycloak Admin Console.
+
+1. Click the **Authentication** left menu item and go to the **Flows** tab.
+2. Search for the flow named **Registration**, click on the options dropdown at the right and click on **Duplicate**. Give it whatever name you want.
+3. Click on the flow to see its steps.
+
 ![Step 1](img/step-01.png)
-Make copy of the Registration flow, and add the hCaptcha execution to the Registration Form.
 
-hCaptcha Registration Flow
+4. On the parent step named `<flow name> registration form`, click the « + » icon and select **Add step**.
+5. Select **ALTCHA** in the list and click **Add**.
+6. Set the **ALTCHA** step requirement from Disabled to **Required**.
+7. Click the gear icon at the right of the ALTCHA step, then fill the following information:
+- Give it a name (`altcha` is fine)
+- In the **ALTCHA HMAC Secret** field, write a random string (the longer, the better). This key will be used to sign and verify captcha challenges.
+- In the **Complexity** field, use a value comprised between 100 000 and 1 500 000 rounds. Write it without spaces and ensure that the chosen integer is positive. See [ALTCHA docs](https://altcha.org/docs/complexity/) for more details.
+
+Here’s a valid configuration example:
+
 ![Step 2](img/step-02.png)
-Set the 'hCaptcha' requirement to Required by clicking the appropriate radio button. This will enable hCaptcha on the screen. Next, you have to enter in the hCaptcha site key and secret that you generated at the hCaptcha.com Website. Click on the 'Actions' button that is to the right of the hCaptcha flow entry, then "Config" link, and enter in the hCaptcha site key and secret on this config page.
 
-hCaptcha Config Page
-![Step 3](img/step-03.png)
+### Theme configuration
 
-Now you have to do is to change some default HTTP response headers that Keycloak sets. Keycloak will prevent a website from including any login page within an iframe. This is to prevent clickjacking attacks. You need to authorize hCaptcha to use the registration page within an iframe. Go to the Realm Settings left menu item and then go to the Security Defenses tab. You will need to add https://newassets.hcaptcha.com to the value of the Content-Security-Policy headers. In the image they are also in the X-Frame-Options, but this is not needed (you can ignore it).
+Now, you need to make changes on your current theme or create a new theme. Please refer to [the Keycloak documentation](https://www.keycloak.org/docs/latest/server_development/#_themes) to create or edit your own theme.
 
-Authorizing Iframes
-![Step 4](img/step-04.png)
-
-To show the hCaptcha you need to modify the registration template. You can find the files in your Keycloak installation under `themes/base/login/`. If you use the user profile preview (you start your Keycloak with the `-Dkeycloak.profile=preview` flag), you need to edit the `register-user-profile.ftl`, else the `register.ftl`. Add the following code beneith the reCaptcha code:
+You will need to edit the [login/register.ftl](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/keycloak.v2/login/register.ftl) template file and add the following lines after the `<@registerCommons.termsAcceptance/>` if block:
 
 ```html
-<#if hcaptchaRequired??>
-    <div class="form-group">
-        <div class="${properties.kcInputWrapperClass!}">
-            <div class="h-captcha" data-size="<#if hcaptchaCompact?? && hcaptchaCompact=="true">compact<#else>normal</#if>" data-sitekey="${hcaptchaSiteKey}"></div>
-        </div>
-    </div>
+<#if altchaRequired??>
+    <altcha-widget challengejson='${altchaPayload}' <#if altchaFloating?? && altchaFloating=="true">floating</#if> hidefooter delay="2000" auto="onload" expire="3600000" debug></altcha-widget>
 </#if>
 ```
 
-Registration Template
-![Step 5](img/step-05.png)
+You can customize the widget settings following [the documentation](https://altcha.org/docs/website-integration/). Beware that you cannot edit the `expire` setting yet (see #1).
 
-In the last step you have to change the registration flow to the newly created one and save. Once you do this, the hCaptcha shows on the registration page and protects your site from bots!
+Then, drop [the minified JS file](https://eu.altcha.org/js/latest/altcha.min.js) into the `login/resources/js/` folder.
 
-Authentication Bindings
-![Step 6](img/step-06.png)
+Create a new file in the `js/` folder named `altcha-import.js`, containing the following:
+
+```js
+import("./altcha.min.js")
+```
+
+In the `theme.properties` file, add `js/altcha-import.js` into the `scripts=` setting. Do not add the minified JS file in the list: as a module, it needs to be imported by the intermediate file you created.
+
+### Final steps
+
+1. In the **Authentication** left menu item, **Flows tab**, click on the options dropdown of your custom registration flow and click on **Bind flow**.
+2. Finally, enable registration : go to **Realm settings**, **Login** tab, and toggle **User registration** on.
+
+And that’s it!
 
 ## Compiling it yourself
 
@@ -63,8 +80,10 @@ mvn clean compile package
 You can instruct Maven to use a specific Java version by prepending the JAVA_HOME environment variable:
 
 ```bash
-JAVA_HOME=/usr/lib/jvm/java-17-oracle/ mvn clean compile package
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk/  mvn clean compile package
 ```
+You will get two JAR files in the `target/` folder. The one you’re looking for is `keycloak-altcha-jar-with-dependencies.jar`.
 
-## © License
+## License
+
 [MIT](LICENSE)
