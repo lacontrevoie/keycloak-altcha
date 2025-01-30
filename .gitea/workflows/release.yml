@@ -16,5 +16,5 @@ jobs:
         run: /run_dir/ci.sh
 
       - name: Push to Gitea release
-        run: /scripts/push-gitea.sh ${{ secrets.RELEASE_TOKEN }} ${{ gitea.repository }} ${{ gitea.ref_name }} /target/keycloak-altcha-jar-with-dependencies.jar
+        run: /scripts/push-gitea.sh ${{ secrets.RELEASE_TOKEN }} ${{ gitea.repository }} ${{ gitea.ref_name }} target/keycloak-altcha-jar-with-dependencies.jar
 

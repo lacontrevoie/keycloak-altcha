@@ -10,5 +10,5 @@ apt update && apt install -y maven openjdk-17-jdk-headless
 cd /run_dir
 
 # Compile
-mvn clean compile package
+mvn clean compile package -q
 
