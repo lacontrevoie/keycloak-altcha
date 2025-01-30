@@ -4,7 +4,7 @@ To safeguard registration against bots, Keycloak has integration with Google reC
 
 ALTCHA is a proof-of-work captcha generator which generates a complex math challenge taking a few seconds for a computer to solve, thus hindering exploitation of the form by spambots. The CAPTCHA doesn’t need any user interaction and is therefore accessible for disabled people.
 
-This implementation doesn’t make **any third-party call** whatsoever. The Keycloak extension is using [the server-side implementation](https://github.com/altcha-org/altcha-lib) of ALTCHA and generates the challenge by itself. A small [Javascript snippet](https://github.com/altcha-org/altcha) is needed to solve the challenge client-side.
+This implementation doesn’t make **any third-party call** whatsoever. The Keycloak extension is using [the server-side Java implementation](https://github.com/altcha-org/altcha-lib-java) of ALTCHA and generates the challenge by itself. A small [Javascript snippet](https://github.com/altcha-org/altcha) is needed to solve the challenge client-side.
 
 ## Installation
 
