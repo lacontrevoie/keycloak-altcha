@@ -11,12 +11,10 @@ jobs:
     steps:
       - name: Checkout
         run: /scripts/clone.sh ${{ gitea.server_url }} ${{ gitea.repository }}
+      
+      - name: Run CI script - install dependencies and compile
+        run: /run_dir/ci.sh
 
-      - name: Use Go release action  
-        id: use-go-action
-        uses: https://gitea.com/actions/release-action@main
-        with:
-          files: |-
-            target/*.jar
-          api_key: '${{secrets.RELEASE_TOKEN}}'
+      - name: Push to Gitea release
+        run: /scripts/push-gitea.sh ${{ secrets.RELEASE_TOKEN }} ${{ gitea.repository }} ${{ gitea.ref_name }} /target/keycloak-altcha-jar-with-dependencies.jar
 
