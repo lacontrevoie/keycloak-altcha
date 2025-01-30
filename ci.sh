@@ -6,6 +6,9 @@
 # Install deps
 apt update && apt install -y maven openjdk-17-jdk-headless
 
+# Move to the right folder in CI
+cd /run_dir
+
 # Compile
 mvn clean compile package
 
