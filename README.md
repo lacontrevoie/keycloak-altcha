@@ -1,7 +1,5 @@
 # keycloak-altcha
 
-Fork of [keycloak-hcaptcha](https://github.com/p08dev/keycloak-hcaptcha).
-
 To safeguard registration against bots, Keycloak has integration with Google reCAPTCHA. This extension provides similar functionality, but with a more privacy friendly provider named [ALTCHA](https://altcha.org/). The code is based [the hCaptcha extension](https://github.com/p08dev/keycloak-hcaptcha), itself based on the vanilla implementation of reCAPTCHA in Keycloak.
 
 ALTCHA is a proof-of-work captcha generator which generates a complex math challenge taking a few seconds for a computer to solve, thus hindering exploitation of the form by spambots. The CAPTCHA doesn’t need any user interaction and is therefore accessible for disabled people.
@@ -10,7 +8,7 @@ This implementation doesn’t make **any third-party call** whatsoever. The Keyc
 
 ## Installation
 
-Compile the JAR and drop it into `your_keycloak_installation/providers`.
+Download the latest JAR from the Releases section of **[our Gitea repository](https://git.lacontrevoie.fr/lacontrevoie/keycloak-altcha/releases)** or compile the JAR, then drop it into `your_keycloak_installation/providers`.
 
 ### Registration flow
 
