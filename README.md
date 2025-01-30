@@ -4,7 +4,9 @@ Fork of [keycloak-hcaptcha](https://github.com/p08dev/keycloak-hcaptcha).
 
 To safeguard registration against bots, Keycloak has integration with Google reCAPTCHA. This extension provides similar functionality, but with a more privacy friendly provider named [ALTCHA](https://altcha.org/). The code is based [the hCaptcha extension](https://github.com/p08dev/keycloak-hcaptcha), itself based on the vanilla implementation of reCAPTCHA in Keycloak.
 
-ALTCHA is a proof-of-work captcha generator which generates a complex math challenge taking a few seconds for a computer to solve, thus hindering exploitation of the form by spambots. The CAPTCHA doesn’t need any user interaction and is trefore accessible for disabled people.
+ALTCHA is a proof-of-work captcha generator which generates a complex math challenge taking a few seconds for a computer to solve, thus hindering exploitation of the form by spambots. The CAPTCHA doesn’t need any user interaction and is therefore accessible for disabled people.
+
+This implementation doesn’t make **any third-party call** whatsoever. The Keycloak extension is using [the server-side implementation](https://github.com/altcha-org/altcha-lib) of ALTCHA and generates the challenge by itself. A small [Javascript snippet](https://github.com/altcha-org/altcha) is needed to solve the challenge client-side.
 
 ## Installation
 
@@ -83,6 +85,12 @@ You can instruct Maven to use a specific Java version by prepending the JAVA_HOM
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk/  mvn clean compile package
 ```
 You will get two JAR files in the `target/` folder. The one you’re looking for is `keycloak-altcha-jar-with-dependencies.jar`.
+
+## Maintenance
+
+This project is maintained by [La Contre-Voie](https://lacontrevoie.fr/) for internal use and is meant to be shared with anyone who needs it.
+
+We need money to pay people to maintain this project, among others. If you are using this work and can afford it, [please consider donating](https://lacontrevoie.fr/#faire-un-don).
 
 ## License
 
