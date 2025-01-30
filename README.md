@@ -40,7 +40,7 @@ You will need to edit the [login/register.ftl](https://github.com/keycloak/keycl
 
 ```html
 <#if altchaRequired??>
-    <altcha-widget challengejson='${altchaPayload}' <#if altchaFloating?? && altchaFloating=="true">floating</#if> hidefooter delay="2000" auto="onload" expire="3600000" debug></altcha-widget>
+    <altcha-widget challengejson='${altchaPayload}' <#if altchaFloating?? && altchaFloating=="true">floating</#if> hidefooter delay="2000" auto="onload" expire="3600000"></altcha-widget>
 </#if>
 ```
 
