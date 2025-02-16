@@ -68,7 +68,7 @@ And that’s it!
 Clone the repository:
 
 ```bash
-git clone https://github.com/p08dev/keycloak-hcaptcha.git
+git clone https://git.lacontrevoie.fr/lacontrevoie/keycloak-altcha/
 ```
 
 Inside the repository, compile it using Maven with Java 17:
