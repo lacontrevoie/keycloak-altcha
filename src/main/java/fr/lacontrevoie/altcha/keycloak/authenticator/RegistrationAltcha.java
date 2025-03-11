@@ -103,7 +103,7 @@ public class RegistrationAltcha implements FormAction, FormActionFactory {
         AuthenticatorConfigModel captchaConfig = context.getAuthenticatorConfig();
         Locale locale = context.getSession().getContext().resolveLocale(context.getUser());
         String userLanguageTag = locale.toLanguageTag();
-        ResourceBundle msg = ResourceBundle.getBundle("messages", locale);
+        ResourceBundle msg = ResourceBundle.getBundle("theme-resources/messages/messages", locale);
 
         if (captchaConfig == null || captchaConfig.getConfig() == null
                 || captchaConfig.getConfig().get("secret") == null
