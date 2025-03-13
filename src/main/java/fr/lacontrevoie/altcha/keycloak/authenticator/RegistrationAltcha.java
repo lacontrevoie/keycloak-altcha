@@ -22,6 +22,8 @@ import jakarta.ws.rs.core.MultivaluedMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.altcha.altcha.Altcha;
 import org.altcha.altcha.Altcha.ChallengeOptions;
@@ -99,7 +101,9 @@ public class RegistrationAltcha implements FormAction, FormActionFactory {
     @Override
     public void buildPage(FormContext context, LoginFormsProvider form) {
         AuthenticatorConfigModel captchaConfig = context.getAuthenticatorConfig();
-        String userLanguageTag = context.getSession().getContext().resolveLocale(context.getUser()).toLanguageTag();
+        Locale locale = context.getSession().getContext().resolveLocale(context.getUser());
+        String userLanguageTag = locale.toLanguageTag();
+        ResourceBundle msg = ResourceBundle.getBundle("theme-resources/messages/messages", locale);
 
         if (captchaConfig == null || captchaConfig.getConfig() == null
                 || captchaConfig.getConfig().get("secret") == null
@@ -133,6 +137,20 @@ public class RegistrationAltcha implements FormAction, FormActionFactory {
             jsonPayload.put("maxnumber", options.maxNumber);
 
             form.setAttribute("altchaPayload", jsonPayload.toString());
+
+            // add strings data to the form
+            JSONObject jsonStrings = new JSONObject();
+
+            jsonStrings.put("ariaLinkLabel", msg.getString("altcha.widget.ariaLinkLabel"));
+            jsonStrings.put("error", msg.getString("altcha.widget.error"));
+            jsonStrings.put("expired", msg.getString("altcha.widget.expired"));
+            jsonStrings.put("footer", msg.getString("altcha.widget.footer"));
+            jsonStrings.put("label", msg.getString("altcha.widget.label"));
+            jsonStrings.put("verified", msg.getString("altcha.widget.verified"));
+            jsonStrings.put("verifying", msg.getString("altcha.widget.verifying"));
+            jsonStrings.put("waitAlert", msg.getString("altcha.widget.waitAlert"));
+
+            form.setAttribute("altchaStrings", jsonStrings.toString());
 
         } catch (Exception e) {
             ServicesLogger.LOGGER.recaptchaFailed(e);
