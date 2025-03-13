@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.lacontrevoie.altcha</groupId>
   <artifactId>keycloak-altcha</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <name>Registration Authenitcation Execution Provider for ALTCHA</name>
   <description>ALTCHA protects your users' privacy, rewards websites and helps businesses annotate their data. It's a 'drop in' replacement for reCAPTCHA/hCaptcha that you set up in minutes.</description>
   <packaging>jar</packaging>
