@@ -40,18 +40,24 @@ You will need to edit the [login/register.ftl](https://github.com/keycloak/keycl
 
 ```html
 <#if altchaRequired??>
-    <altcha-widget challengejson='${altchaPayload}' <#if altchaFloating?? && altchaFloating=="true">floating</#if> hidefooter delay="2000" auto="onload" expire="3600000" strings="${altchaStrings}"></altcha-widget>
+    <altcha-widget challengejson='${altchaPayload}' <#if altchaFloating?? && altchaFloating=="true">floating</#if> hidefooter delay="2000" auto="onload" expire="3600000"></altcha-widget>
 </#if>
 ```
 
 You can customize the widget settings following [the documentation](https://altcha.org/docs/website-integration/). Beware that you cannot edit the `expire` setting yet (see #1).
 
-Then, drop [the minified JS file](https://eu.altcha.org/js/latest/altcha.min.js) into the `login/resources/js/` folder.
+Then, save the following into the `login/resources/js` folder:
+```
+curl -o altcha.min.js https://cdn.jsdelivr.net/gh/altcha-org/altcha/dist/altcha.min.js
+curl -o altcha-i18n.min.js https://cdn.jsdelivr.net/gh/altcha-org/altcha/dist_i18n/all.min.js
+```
+_You will have to **update those files manually**, monitor [this Releases channel](https://github.com/altcha-org/altcha/releases) for security updates. Beware of breaking changes._
 
 Create a new file in the `js/` folder named `altcha-import.js`, containing the following:
 
 ```js
 import("./altcha.min.js")
+import("./altcha-i18n.min.js")
 ```
 
 In the `theme.properties` file, add `js/altcha-import.js` into the `scripts=` setting. Do not add the minified JS file in the list: as a module, it needs to be imported by the intermediate file you created.
